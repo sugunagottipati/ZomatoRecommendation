@@ -45,25 +45,32 @@ async function proxy(request: NextRequest, pathParts: string[]): Promise<NextRes
   const upstreamUrl = `${backendBaseUrl}/${safePath}${request.nextUrl.search}`;
 
   try {
-    const headers = new Headers(request.headers);
-    headers.delete("host");
-    headers.delete("connection");
-    headers.delete("content-length");
+    const requestHeaders = new Headers(request.headers);
+    requestHeaders.delete("host");
+    requestHeaders.delete("connection");
+    requestHeaders.delete("content-length");
 
     const method = request.method.toUpperCase();
     const hasBody = method !== "GET" && method !== "HEAD";
 
     const upstreamResponse = await fetch(upstreamUrl, {
       method,
-      headers,
+      headers: requestHeaders,
       body: hasBody ? await request.arrayBuffer() : undefined,
       redirect: "manual",
       cache: "no-store",
     });
 
-    return new NextResponse(upstreamResponse.body, {
+    const payload = await upstreamResponse.arrayBuffer();
+
+    const responseHeaders = new Headers(upstreamResponse.headers);
+    responseHeaders.delete("content-encoding");
+    responseHeaders.delete("transfer-encoding");
+    responseHeaders.delete("connection");
+
+    return new NextResponse(payload, {
       status: upstreamResponse.status,
-      headers: upstreamResponse.headers,
+      headers: responseHeaders,
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Upstream request failed";
