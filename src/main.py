@@ -60,7 +60,10 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     logger.info("Starting up — loading dataset (this may take a moment)…")
     t0 = time.perf_counter()
 
-    loader = DatasetLoader(dataset_id=settings.hf_dataset_id)
+    loader = DatasetLoader(
+        dataset_id=settings.hf_dataset_id,
+        cache_dir=settings.cache_dir,
+    )
     raw_df = loader.load()
 
     preprocessor = Preprocessor(cache_dir=settings.cache_dir)

@@ -42,6 +42,9 @@ Field Mapping to Restaurant Model
 from __future__ import annotations
 
 import logging
+import os
+import tempfile
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 import pandas as pd
@@ -80,8 +83,9 @@ class DatasetLoader:
         canonical Zomato dataset used in this project.
     """
 
-    def __init__(self, dataset_id: str = _HF_DATASET_ID) -> None:
+    def __init__(self, dataset_id: str = _HF_DATASET_ID, cache_dir: str | Path | None = None) -> None:
         self.dataset_id = dataset_id
+        self.cache_dir = Path(cache_dir) if cache_dir else None
 
     # ------------------------------------------------------------------
     # Public API
@@ -113,9 +117,17 @@ class DatasetLoader:
                 "Install it with: pip install datasets"
             ) from exc
 
-        logger.info("Downloading dataset '%s' from Hugging Face…", self.dataset_id)
+        cache_root = self._configure_hf_cache_dirs()
+        logger.info(
+            "Downloading dataset '%s' from Hugging Face (cache=%s)…",
+            self.dataset_id,
+            cache_root,
+        )
         try:
-            hf_dataset = load_dataset(self.dataset_id)
+            hf_dataset = load_dataset(
+                self.dataset_id,
+                cache_dir=str(cache_root / "datasets"),
+            )
         except Exception as exc:
             raise RuntimeError(
                 f"Failed to download dataset '{self.dataset_id}': {exc}"
@@ -157,3 +169,40 @@ class DatasetLoader:
         keep = list(available.values()) + ["_split"]
         keep = [c for c in keep if c in df.columns]
         return df[keep].copy()
+
+    def _configure_hf_cache_dirs(self) -> Path:
+        """Point Hugging Face caches to a writable directory.
+
+        In serverless environments (e.g. Vercel), default home directories can be
+        read-only and cause startup crashes while resolving dataset metadata.
+        """
+        candidate_dirs: list[Path] = []
+
+        if self.cache_dir is not None:
+            candidate_dirs.append(self.cache_dir / "hf")
+
+        candidate_dirs.append(Path(tempfile.gettempdir()) / "zomato-hf-cache")
+
+        for candidate in candidate_dirs:
+            try:
+                candidate.mkdir(parents=True, exist_ok=True)
+                probe = candidate / ".write_probe"
+                probe.write_text("ok", encoding="utf-8")
+                probe.unlink(missing_ok=True)
+
+                os.environ.setdefault("HF_HOME", str(candidate))
+                os.environ.setdefault("HF_HUB_CACHE", str(candidate / "hub"))
+                os.environ.setdefault("HF_DATASETS_CACHE", str(candidate / "datasets"))
+                os.environ.setdefault("XDG_CACHE_HOME", str(candidate))
+                return candidate
+            except OSError:
+                continue
+
+        # Last-resort fallback; if this also fails, downstream load_dataset will
+        # raise and include the original filesystem reason.
+        fallback = Path(tempfile.gettempdir()) / "zomato-hf-fallback"
+        os.environ["HF_HOME"] = str(fallback)
+        os.environ["HF_HUB_CACHE"] = str(fallback / "hub")
+        os.environ["HF_DATASETS_CACHE"] = str(fallback / "datasets")
+        os.environ["XDG_CACHE_HOME"] = str(fallback)
+        return fallback
