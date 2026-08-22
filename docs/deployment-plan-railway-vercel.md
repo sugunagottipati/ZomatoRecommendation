@@ -48,6 +48,12 @@ Optional but recommended environment setting:
 
 - `PYTHONUNBUFFERED=1`
 
+If Railway build logs show a `mise` Python attestation failure, this repo includes `mise.toml` with:
+
+- `python.github_attestations = false`
+
+so attestation verification is disabled during Python runtime install.
+
 ### 2.3 Set Railway Environment Variables
 
 Set at minimum:
