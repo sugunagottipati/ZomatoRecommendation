@@ -102,9 +102,9 @@ You can copy defaults from `frontend/.env.example`.
 
 Notes:
 
-- Frontend uses Next.js rewrites from `/backend/*` to `API_BASE_URL`.
+- Frontend uses a Next.js route-handler proxy at `/backend/*` that forwards to `API_BASE_URL`.
 - This avoids browser-side CORS issues because calls are proxied server-side by Vercel.
-- `NEXT_PUBLIC_API_BASE_URL` is optional and should only be set if you want direct browser calls.
+- `NEXT_PUBLIC_API_BASE_URL` is optional fallback for non-standard setups.
 
 ### 3.3 Build and Output Settings
 

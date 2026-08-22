@@ -6,8 +6,7 @@ import {
   RecommendationResponse,
 } from "./types";
 
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ?? "/backend";
+const API_BASE_URL = "/backend";
 
 async function parseJsonOrThrow<T>(response: Response): Promise<T> {
   const payload = await response.json();
