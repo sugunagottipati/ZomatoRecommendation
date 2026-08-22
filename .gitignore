@@ -1,0 +1,56 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+
+# Virtual environments
+venv/
+.venv/
+env/
+.env/
+
+# Environment / secrets — never commit these
+.env
+*.env
+
+# Dataset cache
+data/cache/
+data/processed/
+data/*.parquet
+data/*.pkl
+data/*.pickle
+
+# Pytest / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+coverage.xml
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# macOS
+.DS_Store
+
+# Local design exports / artifacts
+stitch_zomato_ai_gourmet_interface/
+stitch_zomato_ai_gourmet_interface.zip
+
+# Docker
+*.dockerignore
+
+# Frontend (Next.js)
+frontend/node_modules/
+frontend/.next/
+frontend/.turbo/
+frontend/coverage/
