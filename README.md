@@ -67,6 +67,8 @@ If your API is not on `http://localhost:8000`, set:
 NEXT_PUBLIC_API_BASE_URL=http://<api-host>:<port>
 ```
 
+For Vercel deployment, prefer server-side proxy mode by setting `API_BASE_URL` to your Railway backend URL (see `frontend/.env.example`).
+
 ---
 
 ## Configuration Reference

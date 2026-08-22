@@ -92,6 +92,8 @@ Set this variable in Vercel (Production + Preview):
 
 - `API_BASE_URL=https://<your-railway-backend-domain>`
 
+You can copy defaults from `frontend/.env.example`.
+
 Notes:
 
 - Frontend uses Next.js rewrites from `/backend/*` to `API_BASE_URL`.
@@ -105,6 +107,8 @@ Default Vercel settings are fine for this app:
 - Build Command: `npm run build`
 - Install Command: `npm install`
 - Output: Next.js managed output
+
+These settings are also committed in `frontend/vercel.json`.
 
 ## 4. End-to-End Verification
 
