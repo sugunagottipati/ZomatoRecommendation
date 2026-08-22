@@ -38,6 +38,12 @@ Use these settings in Railway service configuration:
 - Start Command:
   - `uvicorn src.main:app --host 0.0.0.0 --port ${PORT:-8000}`
 
+These are committed in-repo so Railway can auto-pick them during deploy:
+
+- `railway.toml` (primary)
+- `Procfile` (fallback)
+- `runtime.txt` (Python version pin)
+
 Optional but recommended environment setting:
 
 - `PYTHONUNBUFFERED=1`
